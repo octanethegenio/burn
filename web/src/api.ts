@@ -19,17 +19,11 @@ export type EventRow = {
   cost_cents: number
   input_tokens: number
   output_tokens: number
-  cache_read_tokens: number
-  cache_write_tokens: number
-  is_chargeable: number
 }
 
 export type Summary = {
   account: {
     email?: string
-    name?: string
-    user_id?: number
-    auth_source?: string
   } | null
   period: {
     start?: string
@@ -59,7 +53,7 @@ export type Summary = {
 export type Status = {
   auth_ok: boolean
   auth_error: string | null
-  session: { email?: string | null; source?: string; sub?: string } | null
+  session: { email?: string | null } | null
   account: Summary['account']
   period: Summary['period']
   last_synced_at: number | null
@@ -81,15 +75,15 @@ async function json<T>(res: Response): Promise<T> {
 }
 
 export function fetchStatus() {
-  return fetch('/api/status').then((r) => json<Status>(r))
+  return fetch('/api/status', { cache: 'no-store' }).then((r) => json<Status>(r))
 }
 
 export function fetchSummary(apiOnly: boolean) {
-  return fetch(`/api/summary?api_only=${apiOnly}`).then((r) => json<Summary>(r))
+  return fetch(`/api/summary?api_only=${apiOnly}`, { cache: 'no-store' }).then((r) => json<Summary>(r))
 }
 
 export function syncNow() {
-  return fetch('/api/sync', { method: 'POST' }).then((r) =>
+  return fetch('/api/sync', { method: 'POST', headers: { 'X-Burn-Request': '1' } }).then((r) =>
     json<{ ok: boolean; models: number; events: number; total_cost_cents: number }>(r),
   )
 }

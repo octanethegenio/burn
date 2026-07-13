@@ -22,19 +22,21 @@ export type ProviderId =
 export type ProviderInfo = {
   id: ProviderId
   name: string
-  iconSvg: string | null
+  iconSrc: string | null
 }
 
+const svgSrc = (svg: string) => `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`
+
 const PROVIDERS: Record<ProviderId, ProviderInfo> = {
-  cursor: { id: 'cursor', name: 'Cursor (first-party)', iconSvg: cursorSvg },
-  anthropic: { id: 'anthropic', name: 'Anthropic', iconSvg: anthropicSvg },
-  openai: { id: 'openai', name: 'OpenAI', iconSvg: openaiSvg },
-  google: { id: 'google', name: 'Google', iconSvg: googleSvg },
-  xai: { id: 'xai', name: 'xAI', iconSvg: grokSvg },
-  moonshot: { id: 'moonshot', name: 'Moonshot', iconSvg: moonshotSvg },
-  zhipu: { id: 'zhipu', name: 'Zhipu', iconSvg: zaiSvg },
-  deepseek: { id: 'deepseek', name: 'DeepSeek', iconSvg: deepseekSvg },
-  other: { id: 'other', name: 'Other', iconSvg: null },
+  cursor: { id: 'cursor', name: 'Cursor (first-party)', iconSrc: svgSrc(cursorSvg) },
+  anthropic: { id: 'anthropic', name: 'Anthropic', iconSrc: svgSrc(anthropicSvg) },
+  openai: { id: 'openai', name: 'OpenAI', iconSrc: svgSrc(openaiSvg) },
+  google: { id: 'google', name: 'Google', iconSrc: svgSrc(googleSvg) },
+  xai: { id: 'xai', name: 'xAI', iconSrc: svgSrc(grokSvg) },
+  moonshot: { id: 'moonshot', name: 'Moonshot', iconSrc: svgSrc(moonshotSvg) },
+  zhipu: { id: 'zhipu', name: 'Zhipu', iconSrc: svgSrc(zaiSvg) },
+  deepseek: { id: 'deepseek', name: 'DeepSeek', iconSrc: svgSrc(deepseekSvg) },
+  other: { id: 'other', name: 'Other', iconSrc: null },
 }
 
 export type ModelSortKey =

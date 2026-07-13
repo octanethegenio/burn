@@ -5,7 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "lint": "oxlint src",
     "build": "tsc -b && vite build",
+    "check": "npm run lint && npm run build",
     "preview": "vite preview"
   },
   "dependencies": {

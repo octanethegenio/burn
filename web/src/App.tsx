@@ -47,6 +47,17 @@ function relTime(ts: number | null) {
   return `${Math.floor(s / 86400)}d ago`
 }
 
+function RelativeTime({ ts }: { ts: number | null }) {
+  const [, update] = useState(0)
+
+  useEffect(() => {
+    const id = window.setInterval(() => update((value) => value + 1), 30_000)
+    return () => window.clearInterval(id)
+  }, [])
+
+  return <>{relTime(ts)}</>
+}
+
 function fmtRange(start?: string, end?: string) {
   if (!start || !end) return '—'
   const a = new Date(start)
@@ -152,8 +163,19 @@ type SortKey =
   | 'cost_usd'
 
 function readTheme(): Theme {
-  const saved = localStorage.getItem('burn-theme')
-  return saved === 'light' ? 'light' : 'dark'
+  try {
+    return localStorage.getItem('burn-theme') === 'light' ? 'light' : 'dark'
+  } catch {
+    return 'dark'
+  }
+}
+
+function isFirstRun() {
+  try {
+    return localStorage.getItem('burn-onboarding-complete') !== '1'
+  } catch {
+    return true
+  }
 }
 
 function SortArrow({ dir, active }: { dir: 'asc' | 'desc'; active: boolean }) {
@@ -241,7 +263,7 @@ export default function App() {
   const [sortKey, setSortKey] = useState<SortKey>('cost_usd')
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc')
   const [emailBlurred, setEmailBlurred] = useState(true)
-  const [tick, setTick] = useState(0)
+  const [showOnboarding, setShowOnboarding] = useState(() => isFirstRun())
   const [eventPageSize, setEventPageSize] = useState<20 | 50 | 100>(20)
   const [eventPage, setEventPage] = useState(0)
   const [pageSizeOpen, setPageSizeOpen] = useState(false)
@@ -255,21 +277,16 @@ export default function App() {
 
   const deferredQuery = useDeferredValue(query)
 
-  useEffect(() => {
-    localStorage.setItem('burn-theme', theme)
-  }, [theme])
-
   const toggleTheme = () => {
     const next: Theme = theme === 'dark' ? 'light' : 'dark'
     document.documentElement.setAttribute('data-theme', next)
-    localStorage.setItem('burn-theme', next)
+    try {
+      localStorage.setItem('burn-theme', next)
+    } catch {
+      // Theme still applies for this session.
+    }
     setTheme(next)
   }
-
-  useEffect(() => {
-    const id = window.setInterval(() => setTick((t) => t + 1), 30_000)
-    return () => window.clearInterval(id)
-  }, [])
 
   useEffect(() => {
     if (!pageSizeOpen && !viewMenuOpen) return
@@ -510,12 +527,32 @@ export default function App() {
     })
   }
 
-  void tick
-
   const modelsLabel = modelsView === 'model' ? 'By model' : 'By provider'
+
+  const finishOnboarding = () => {
+    try {
+      localStorage.setItem('burn-onboarding-complete', '1')
+    } catch {
+      // The dialog can still close when storage is unavailable.
+    }
+    setShowOnboarding(false)
+  }
 
   return (
     <div className="shell">
+      {showOnboarding && (
+        <div className="onboarding-backdrop" role="presentation">
+          <section className="onboarding" role="dialog" aria-modal="true" aria-labelledby="onboarding-title">
+            <span className="onboarding-mark">Burn</span>
+            <h1 id="onboarding-title">Cursor usage, kept local.</h1>
+            <p>Burn reads usage from the Cursor account signed in on this Mac.</p>
+            <p>Your session and cache stay on this machine.</p>
+            <button type="button" className="sync onboarding-action" onClick={finishOnboarding} autoFocus>
+              Open dashboard
+            </button>
+          </section>
+        </div>
+      )}
       <header className="top">
         <div className="brand">
           <span className="mark">Burn</span>
@@ -586,7 +623,9 @@ export default function App() {
           </div>
           <div className="meta-row">
             <span className="k">Synced</span>
-            <span className="v">{relTime(summary?.last_synced_at ?? status?.last_synced_at ?? null)}</span>
+            <span className="v">
+              <RelativeTime ts={summary?.last_synced_at ?? status?.last_synced_at ?? null} />
+            </span>
           </div>
         </div>
         <div className="total">
@@ -845,12 +884,10 @@ export default function App() {
                     <tr className="provider-row">
                       <td colSpan={7}>
                         <div className="provider-head">
-                          {g.provider.iconSvg ? (
-                            <span
-                              className="provider-ico"
-                              aria-hidden="true"
-                              dangerouslySetInnerHTML={{ __html: g.provider.iconSvg }}
-                            />
+                          {g.provider.iconSrc ? (
+                            <span className="provider-ico" aria-hidden="true">
+                              <img src={g.provider.iconSrc} alt="" />
+                            </span>
                           ) : (
                             <span className="provider-fallback" aria-hidden="true">
                               {g.provider.name.slice(0, 1)}
