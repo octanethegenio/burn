@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.0-beta.4
+
+- Removed the first-run panel so the dashboard opens immediately.
+
 ## 0.1.0-beta.3
 
 - Replaced the native macOS window with the user's default browser.

@@ -172,14 +172,6 @@ function readTheme(): Theme {
   }
 }
 
-function isFirstRun() {
-  try {
-    return localStorage.getItem('burn-onboarding-complete') !== '1'
-  } catch {
-    return true
-  }
-}
-
 function SortArrow({ dir, active }: { dir: 'asc' | 'desc'; active: boolean }) {
   return (
     <span className={`sort-ind${active ? ' on' : ''}${active && dir === 'asc' ? ' asc' : ''}`} aria-hidden="true">
@@ -265,7 +257,6 @@ export default function App() {
   const [sortKey, setSortKey] = useState<SortKey>('cost_usd')
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc')
   const [emailBlurred, setEmailBlurred] = useState(true)
-  const [showOnboarding, setShowOnboarding] = useState(() => isFirstRun())
   const [eventPageSize, setEventPageSize] = useState<20 | 50 | 100>(20)
   const [eventPage, setEventPage] = useState(0)
   const [pageSizeOpen, setPageSizeOpen] = useState(false)
@@ -538,30 +529,8 @@ export default function App() {
 
   const modelsLabel = modelsView === 'model' ? 'By model' : 'By provider'
 
-  const finishOnboarding = () => {
-    try {
-      localStorage.setItem('burn-onboarding-complete', '1')
-    } catch {
-      // The dialog can still close when storage is unavailable.
-    }
-    setShowOnboarding(false)
-  }
-
   return (
     <div className="shell">
-      {showOnboarding && (
-        <div className="onboarding-backdrop" role="presentation">
-          <section className="onboarding" role="dialog" aria-modal="true" aria-labelledby="onboarding-title">
-            <span className="onboarding-mark">Burn</span>
-            <h1 id="onboarding-title">Cursor usage, kept local.</h1>
-            <p>Burn reads usage from the Cursor account signed in on this computer.</p>
-            <p>Your session and cache stay on this machine.</p>
-            <button type="button" className="sync onboarding-action" onClick={finishOnboarding} autoFocus>
-              Open dashboard
-            </button>
-          </section>
-        </div>
-      )}
       <header className="top">
         <div className="brand">
           <span className="mark">Burn</span>

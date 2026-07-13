@@ -14,7 +14,7 @@ from pathlib import Path
 import PyInstaller.__main__
 
 ROOT = Path(__file__).resolve().parent.parent
-VERSION = "0.1.0-beta.3"
+VERSION = "0.1.0-beta.4"
 
 
 def _run(*command: str, cwd: Path = ROOT) -> None:
