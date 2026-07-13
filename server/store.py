@@ -41,7 +41,8 @@ _EVENT_COLUMNS = """
   kind TEXT,
   cost_cents REAL NOT NULL,
   input_tokens INTEGER NOT NULL,
-  output_tokens INTEGER NOT NULL
+  output_tokens INTEGER NOT NULL,
+  cache_read_tokens INTEGER NOT NULL
 """
 
 
@@ -104,9 +105,21 @@ def init_db() -> None:
             row["name"] for row in con.execute("PRAGMA table_info(events)").fetchall()
         }
         expected_event_columns = {
-            "id", "ts_ms", "model", "kind", "cost_cents", "input_tokens", "output_tokens"
+            "id",
+            "ts_ms",
+            "model",
+            "kind",
+            "cost_cents",
+            "input_tokens",
+            "output_tokens",
+            "cache_read_tokens",
         }
-        if event_columns != expected_event_columns:
+        safe_previous_columns = expected_event_columns - {"cache_read_tokens"}
+        if event_columns == safe_previous_columns:
+            con.execute(
+                "ALTER TABLE events ADD COLUMN cache_read_tokens INTEGER NOT NULL DEFAULT 0"
+            )
+        elif event_columns != expected_event_columns:
             # Old rows can contain account identifiers in raw_json and id.
             con.executescript(
                 f"""
@@ -181,8 +194,9 @@ def replace_snapshot(
         con.executemany(
             """
             INSERT INTO events(
-              id, ts_ms, model, kind, cost_cents, input_tokens, output_tokens
-            ) VALUES (?, ?, ?, ?, ?, ?, ?)
+              id, ts_ms, model, kind, cost_cents, input_tokens, output_tokens,
+              cache_read_tokens
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
             """,
             [
                 (
@@ -193,6 +207,7 @@ def replace_snapshot(
                     row["cost_cents"],
                     row["input_tokens"],
                     row["output_tokens"],
+                    row.get("cache_read_tokens", 0),
                 )
                 for row in events
             ],
@@ -213,7 +228,8 @@ def list_events(limit: int = 2000) -> list[dict[str, Any]]:
     safe_limit = max(1, min(limit, 5000))
     with connect() as con:
         rows = con.execute(
-            "SELECT id, ts_ms, model, kind, cost_cents, input_tokens, output_tokens "
+            "SELECT id, ts_ms, model, kind, cost_cents, input_tokens, output_tokens, "
+            "cache_read_tokens "
             "FROM events ORDER BY ts_ms DESC LIMIT ?",
             (safe_limit,),
         ).fetchall()

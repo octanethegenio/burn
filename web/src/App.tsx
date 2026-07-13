@@ -903,6 +903,7 @@ export default function App() {
                 <th>Kind</th>
                 <th className="num">In</th>
                 <th className="num">Out</th>
+                <th className="num">Cache</th>
                 <th className="num">Cost</th>
               </tr>
             </thead>
@@ -925,12 +926,13 @@ export default function App() {
                   </td>
                   <td className="num">{tokens(e.input_tokens)}</td>
                   <td className="num">{tokens(e.output_tokens)}</td>
+                  <td className="num">{tokens(e.cache_read_tokens)}</td>
                   <td className="num cost">{money(e.cost_cents / 100)}</td>
                 </tr>
               ))}
               {!pagedEvents.length && (
                 <tr>
-                  <td colSpan={6} className="empty">
+                  <td colSpan={7} className="empty">
                     {deferredQuery ? 'No events match that search.' : 'No events cached yet.'}
                   </td>
                 </tr>

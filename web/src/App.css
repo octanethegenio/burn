@@ -815,19 +815,22 @@ table {
 }
 
 .events-table th:nth-child(1) {
-  width: 18%;
+  width: 16%;
 }
 .events-table th:nth-child(2) {
-  width: 30%;
+  width: 27%;
 }
 .events-table th:nth-child(3) {
-  width: 18%;
+  width: 15%;
 }
 .events-table th:nth-child(4),
 .events-table th:nth-child(5) {
-  width: 11%;
+  width: 9%;
 }
 .events-table th:nth-child(6) {
+  width: 12%;
+}
+.events-table th:nth-child(7) {
   width: 12%;
 }
 
@@ -1082,7 +1085,7 @@ tr:hover td {
     width: 44%;
   }
 
-  .events-table th:nth-child(6) {
+  .events-table th:nth-child(7) {
     width: 26%;
   }
 
@@ -1091,7 +1094,9 @@ tr:hover td {
   .events-table th:nth-child(4),
   .events-table td:nth-child(4),
   .events-table th:nth-child(5),
-  .events-table td:nth-child(5) {
+  .events-table td:nth-child(5),
+  .events-table th:nth-child(6),
+  .events-table td:nth-child(6) {
     display: none;
   }
 

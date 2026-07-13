@@ -19,6 +19,7 @@ export type EventRow = {
   cost_cents: number
   input_tokens: number
   output_tokens: number
+  cache_read_tokens: number
 }
 
 export type Summary = {

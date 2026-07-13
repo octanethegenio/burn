@@ -198,6 +198,7 @@ def sync_now() -> dict[str, Any]:
                 "cost_cents": _event_cost_cents(ev),
                 "input_tokens": _intish(tu.get("inputTokens")),
                 "output_tokens": _intish(tu.get("outputTokens")),
+                "cache_read_tokens": _intish(tu.get("cacheReadTokens")),
             }
         )
     event_rows.sort(key=lambda row: row["ts_ms"], reverse=True)
@@ -239,7 +240,7 @@ async def lifespan(_: FastAPI):
     yield
 
 
-app = FastAPI(title="Burn", version="0.1.0-beta.4", lifespan=lifespan)
+app = FastAPI(title="Burn", version="0.1.0-beta.5", lifespan=lifespan)
 
 
 @app.middleware("http")

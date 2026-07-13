@@ -137,6 +137,29 @@ class StoreTests(unittest.TestCase):
             columns = {row["name"] for row in con.execute("PRAGMA table_info(events)")}
         self.assertNotIn("raw_json", columns)
 
+    def test_safe_event_schema_adds_cache_without_losing_rows(self) -> None:
+        with sqlite3.connect(store.DB_PATH) as con:
+            con.executescript(
+                """
+                CREATE TABLE events (
+                  id TEXT PRIMARY KEY,
+                  ts_ms INTEGER NOT NULL,
+                  model TEXT NOT NULL,
+                  kind TEXT,
+                  cost_cents REAL NOT NULL,
+                  input_tokens INTEGER NOT NULL,
+                  output_tokens INTEGER NOT NULL
+                );
+                INSERT INTO events VALUES ('event-a', 1, 'model-a', 'chat', 2, 3, 4);
+                """
+            )
+
+        store.init_db()
+
+        events = store.list_events()
+        self.assertEqual(len(events), 1)
+        self.assertEqual(events[0]["cache_read_tokens"], 0)
+
     def test_failed_snapshot_rolls_back(self) -> None:
         store.init_db()
         model = {

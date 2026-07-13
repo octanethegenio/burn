@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.0-beta.5
+
+- Added per-event cache-read tokens to Recent events without crowding phone layouts.
+
 ## 0.1.0-beta.4
 
 - Removed the first-run panel so the dashboard opens immediately.
