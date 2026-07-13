@@ -225,7 +225,7 @@ async def lifespan(_: FastAPI):
     yield
 
 
-app = FastAPI(title="Burn", version="0.1.0-beta.1", lifespan=lifespan)
+app = FastAPI(title="Burn", version="0.1.0-beta.2", lifespan=lifespan)
 
 
 @app.middleware("http")

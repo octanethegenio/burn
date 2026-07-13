@@ -4,11 +4,11 @@ Burn is a private macOS dashboard for Cursor usage and cost by model. It reads t
 
 ## Install the beta
 
-1. Download `Burn-0.1.0-beta.1-macOS-arm64.zip` from GitHub Releases.
+1. Download `Burn-0.1.0-beta.2-macOS-arm64.zip` from GitHub Releases.
 2. Unzip it and move `Burn.app` to Applications.
 3. Open Burn while signed in to Cursor.
 
-The beta build targets Apple Silicon and macOS 13 or newer. It uses ad-hoc signing because this release is not notarized. macOS may require you to right-click Burn and choose **Open** the first time.
+The beta build targets Apple Silicon and macOS 13 or newer. Public builds must be Developer ID signed and notarized so Gatekeeper can verify them.
 
 ## Privacy and security
 
@@ -47,5 +47,7 @@ cd web && npm ci && npm run check
 ```bash
 ./scripts/build-macos.sh
 ```
+
+For a public build, install a Developer ID Application certificate and store notarization credentials with `notarytool`, then set `BURN_CODESIGN_IDENTITY` and `BURN_NOTARY_PROFILE`. Without both values the script produces a local ad-hoc build and warns that Gatekeeper will reject public downloads.
 
 The script creates the app and checksum in `release/`. It needs Xcode command-line tools, Python 3, Node, and network access for build dependencies.

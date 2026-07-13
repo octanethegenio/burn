@@ -572,6 +572,12 @@
   width: 100%;
   height: 100%;
   display: block;
+  opacity: 0.78;
+  filter: grayscale(1) brightness(0) invert(72%);
+}
+
+[data-theme='light'] .provider-ico img {
+  filter: grayscale(1) brightness(0) invert(38%);
 }
 
 .provider-fallback {
@@ -828,22 +834,23 @@ table {
   table-layout: fixed;
 }
 
-.models-table .col-model {
+.models-table th:nth-child(1) {
   width: 28%;
 }
-.models-table .col-req {
+.models-table th:nth-child(2) {
   width: 10%;
 }
-.models-table .col-tok {
+.models-table th:nth-child(3),
+.models-table th:nth-child(4) {
   width: 10%;
 }
-.models-table .col-cache {
+.models-table th:nth-child(5) {
   width: 12%;
 }
-.models-table .col-cost {
+.models-table th:nth-child(6) {
   width: 11%;
 }
-.models-table .col-bar {
+.models-table th:nth-child(7) {
   width: 9%;
 }
 
@@ -851,19 +858,20 @@ table {
   table-layout: fixed;
 }
 
-.events-table .col-when {
+.events-table th:nth-child(1) {
   width: 18%;
 }
-.events-table .col-model {
-  width: 28%;
+.events-table th:nth-child(2) {
+  width: 30%;
 }
-.events-table .col-kind {
+.events-table th:nth-child(3) {
   width: 18%;
 }
-.events-table .col-tok {
-  width: 10%;
+.events-table th:nth-child(4),
+.events-table th:nth-child(5) {
+  width: 11%;
 }
-.events-table .col-cost {
+.events-table th:nth-child(6) {
   width: 12%;
 }
 
@@ -1053,17 +1061,17 @@ tr:hover td {
     margin-left: auto;
   }
 
-  .models-table .col-model {
+  .models-table th:nth-child(1) {
     width: 34%;
   }
 
-  .models-table .col-req,
-  .models-table .col-tok,
-  .models-table .col-cost {
+  .models-table th:nth-child(2),
+  .models-table th:nth-child(3),
+  .models-table th:nth-child(4),
+  .models-table th:nth-child(6) {
     width: 16.5%;
   }
 
-  .models-table .col-cache,
   .models-table th:nth-child(5),
   .models-table td:nth-child(5) {
     display: none;
@@ -1094,16 +1102,15 @@ tr:hover td {
     grid-template-columns: 4.5rem minmax(0, 1fr);
   }
 
-  .models-table .col-model {
+  .models-table th:nth-child(1) {
     width: 52%;
   }
 
-  .models-table .col-req,
-  .models-table .col-cost {
+  .models-table th:nth-child(2),
+  .models-table th:nth-child(6) {
     width: 24%;
   }
 
-  .models-table .col-tok,
   .models-table th:nth-child(3),
   .models-table td:nth-child(3),
   .models-table th:nth-child(4),
@@ -1111,20 +1118,18 @@ tr:hover td {
     display: none;
   }
 
-  .events-table .col-when {
+  .events-table th:nth-child(1) {
     width: 30%;
   }
 
-  .events-table .col-model {
+  .events-table th:nth-child(2) {
     width: 44%;
   }
 
-  .events-table .col-cost {
+  .events-table th:nth-child(6) {
     width: 26%;
   }
 
-  .events-table .col-kind,
-  .events-table .col-tok,
   .events-table th:nth-child(3),
   .events-table td:nth-child(3),
   .events-table th:nth-child(4),

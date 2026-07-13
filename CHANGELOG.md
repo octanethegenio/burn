@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.0-beta.2
+
+- Fixed narrow tables leaving unused space on the right in WebKit.
+- Improved provider icon contrast in dark and light themes.
+- Added Developer ID signing, notarization, and ticket stapling support to the macOS build.
+
 ## 0.1.0-beta.1
 
 - Added model and provider usage views, recent events, search, sorting, and themes.

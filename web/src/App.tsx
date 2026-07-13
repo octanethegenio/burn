@@ -850,15 +850,6 @@ export default function App() {
       {tab === 'models' && (
         <div className="table-wrap">
           <table className="models-table">
-            <colgroup>
-              <col className="col-model" />
-              <col className="col-req" />
-              <col className="col-tok" />
-              <col className="col-tok" />
-              <col className="col-cache" />
-              <col className="col-cost" />
-              <col className="col-bar" />
-            </colgroup>
             <thead>
               <tr>
                 <SortTh label="Model" col="model" sortKey={sortKey} sortDir={sortDir} onSort={onSort} />
@@ -927,14 +918,6 @@ export default function App() {
       {tab === 'events' && (
         <div className="table-wrap events-wrap">
           <table className="events-table">
-            <colgroup>
-              <col className="col-when" />
-              <col className="col-model" />
-              <col className="col-kind" />
-              <col className="col-tok" />
-              <col className="col-tok" />
-              <col className="col-cost" />
-            </colgroup>
             <thead>
               <tr>
                 <th>When</th>
