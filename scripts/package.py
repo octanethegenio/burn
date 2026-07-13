@@ -87,7 +87,7 @@ def main() -> None:
                     "CFBundleName": "Burn",
                     "CFBundlePackageType": "APPL",
                     "CFBundleShortVersionString": "0.1.0",
-                    "CFBundleVersion": "6",
+                    "CFBundleVersion": VERSION.rsplit(".", 1)[-1],
                     "LSMinimumSystemVersion": "13.0",
                     "LSUIElement": True,
                 },
