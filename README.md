@@ -6,7 +6,7 @@ Burn is a private macOS dashboard for Cursor usage and cost by model. It reads t
 
 Burn does not use a setup wizard. On macOS, moving the `.app` bundle into the Applications folder installs it.
 
-1. Download `Burn-0.1.0-beta.1-macOS-arm64.zip` from [GitHub Releases](https://github.com/octanethegenio/burn/releases/tag/v0.1.0-beta.1).
+1. Download `Burn-0.1.0-beta.2-macOS-arm64.zip` from [GitHub Releases](https://github.com/octanethegenio/burn/releases/tag/v0.1.0-beta.2).
 2. Double-click the ZIP to extract `Burn.app`.
 3. Open Finder and drag `Burn.app` into **Applications**.
 4. Make sure Cursor is open and signed in.
