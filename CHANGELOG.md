@@ -1,10 +1,18 @@
 # Changelog
 
+## 0.1.0-beta.3
+
+- Replaced the native macOS window with the user's default browser.
+- Added a lightweight local launcher that opens Burn automatically and stops after the browser disconnects.
+- Added Cursor session and private cache paths for macOS, Windows, and Linux.
+- Added cross-platform packaging for macOS ARM/Intel, Windows x64, and Linux x64.
+- Removed the obsolete Swift, WebKit, and macOS app-bundle build path.
+
 ## 0.1.0-beta.2
 
 - Fixed narrow tables leaving unused space on the right in WebKit.
 - Improved provider icon contrast in dark and light themes.
-- Added Developer ID signing, notarization, and ticket stapling support to the macOS build.
+- Added Developer ID signing, notarization, and ticket stapling support to the former macOS build.
 
 ## 0.1.0-beta.1
 

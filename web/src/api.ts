@@ -87,3 +87,11 @@ export function syncNow() {
     json<{ ok: boolean; models: number; events: number; total_cost_cents: number }>(r),
   )
 }
+
+export function sendHeartbeat() {
+  return fetch('/api/heartbeat', {
+    method: 'POST',
+    headers: { 'X-Burn-Request': '1' },
+    cache: 'no-store',
+  })
+}

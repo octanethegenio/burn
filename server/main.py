@@ -5,6 +5,7 @@ from __future__ import annotations
 import re
 import sys
 import threading
+import time
 from contextlib import asynccontextmanager
 from datetime import datetime
 from hashlib import sha256
@@ -21,6 +22,19 @@ from .auth import load_session
 ROOT = Path(getattr(sys, "_MEIPASS", Path(__file__).resolve().parent.parent))
 WEB_DIST = ROOT / "web" / "dist"
 SYNC_LOCK = threading.Lock()
+_BROWSER_ACTIVITY_LOCK = threading.Lock()
+_LAST_BROWSER_ACTIVITY = time.monotonic()
+
+
+def note_browser_activity() -> None:
+    global _LAST_BROWSER_ACTIVITY
+    with _BROWSER_ACTIVITY_LOCK:
+        _LAST_BROWSER_ACTIVITY = time.monotonic()
+
+
+def seconds_since_browser_activity() -> float:
+    with _BROWSER_ACTIVITY_LOCK:
+        return time.monotonic() - _LAST_BROWSER_ACTIVITY
 
 # Models that look like Auto / router buckets — hidden when api_only=true
 AUTO_MODEL_RE = re.compile(
@@ -225,7 +239,7 @@ async def lifespan(_: FastAPI):
     yield
 
 
-app = FastAPI(title="Burn", version="0.1.0-beta.2", lifespan=lifespan)
+app = FastAPI(title="Burn", version="0.1.0-beta.3", lifespan=lifespan)
 
 
 @app.middleware("http")
@@ -250,7 +264,12 @@ async def security_headers(request: Request, call_next):
 
 @app.get("/api/health")
 def health() -> dict[str, str]:
-    return {"status": "ok"}
+    return {"status": "ok", "app": "burn"}
+
+
+@app.post("/api/heartbeat", status_code=204)
+def heartbeat() -> None:
+    note_browser_activity()
 
 
 @app.get("/api/status")

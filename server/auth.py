@@ -4,7 +4,9 @@ from __future__ import annotations
 
 import base64
 import json
+import os
 import sqlite3
+import sys
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -21,11 +23,19 @@ class Session:
         return f"WorkosCursorSessionToken={self.user_sub}%3A%3A{self.access_token}"
 
 
-def _state_db_path() -> Path:
-    return (
-        Path.home()
-        / "Library/Application Support/Cursor/User/globalStorage/state.vscdb"
-    )
+def _state_db_path(
+    *, platform: str | None = None, home: Path | None = None, env: dict[str, str] | None = None
+) -> Path:
+    platform = platform or sys.platform
+    home = home or Path.home()
+    env = os.environ if env is None else env
+    if platform == "darwin":
+        root = home / "Library" / "Application Support"
+    elif platform == "win32":
+        root = Path(env.get("APPDATA", home / "AppData" / "Roaming"))
+    else:
+        root = Path(env.get("XDG_CONFIG_HOME", home / ".config"))
+    return root / "Cursor" / "User" / "globalStorage" / "state.vscdb"
 
 
 def _decode_jwt_payload(token: str) -> dict:
@@ -62,6 +72,8 @@ def _read_sqlite_auth(db_path: Path) -> tuple[str, str | None]:
 
 
 def _read_keychain_token() -> str | None:
+    if sys.platform != "darwin":
+        return None
     import subprocess
 
     try:

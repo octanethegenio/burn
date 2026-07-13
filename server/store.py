@@ -14,13 +14,20 @@ ROOT = Path(__file__).resolve().parent.parent
 LEGACY_DB_PATH = ROOT / "data" / "burn.db"
 
 
-def _data_dir() -> Path:
-    override = os.environ.get("BURN_DATA_DIR")
+def _data_dir(
+    *, platform: str | None = None, home: Path | None = None, env: dict[str, str] | None = None
+) -> Path:
+    platform = platform or sys.platform
+    home = home or Path.home()
+    env = os.environ if env is None else env
+    override = env.get("BURN_DATA_DIR")
     if override:
         return Path(override).expanduser()
-    if sys.platform == "darwin":
-        return Path.home() / "Library" / "Application Support" / "Burn"
-    return Path(os.environ.get("XDG_DATA_HOME", Path.home() / ".local" / "share")) / "burn"
+    if platform == "darwin":
+        return home / "Library" / "Application Support" / "Burn"
+    if platform == "win32":
+        return Path(env.get("LOCALAPPDATA", home / "AppData" / "Local")) / "Burn"
+    return Path(env.get("XDG_DATA_HOME", home / ".local" / "share")) / "burn"
 
 
 DATA_DIR = _data_dir()

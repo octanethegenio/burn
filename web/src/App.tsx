@@ -13,6 +13,7 @@ import {
 import {
   fetchStatus,
   fetchSummary,
+  sendHeartbeat,
   syncNow,
   type ModelRow,
   type Status,
@@ -22,6 +23,7 @@ import { groupModelsByProvider } from './providers'
 import './App.css'
 
 const AUTO_SYNC_MS = 120_000
+const HEARTBEAT_MS = 30_000
 
 function money(usd: number) {
   return usd.toLocaleString(undefined, {
@@ -363,6 +365,13 @@ export default function App() {
     refresh().catch((e: Error) => setError(e.message))
   }, [refresh])
 
+  useEffect(() => {
+    const beat = () => void sendHeartbeat().catch(() => undefined)
+    beat()
+    const id = window.setInterval(beat, HEARTBEAT_MS)
+    return () => window.clearInterval(id)
+  }, [])
+
   const onSync = useCallback(
     async (silent = false) => {
       if (busyRef.current) return
@@ -545,7 +554,7 @@ export default function App() {
           <section className="onboarding" role="dialog" aria-modal="true" aria-labelledby="onboarding-title">
             <span className="onboarding-mark">Burn</span>
             <h1 id="onboarding-title">Cursor usage, kept local.</h1>
-            <p>Burn reads usage from the Cursor account signed in on this Mac.</p>
+            <p>Burn reads usage from the Cursor account signed in on this computer.</p>
             <p>Your session and cache stay on this machine.</p>
             <button type="button" className="sync onboarding-action" onClick={finishOnboarding} autoFocus>
               Open dashboard

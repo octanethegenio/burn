@@ -13,4 +13,4 @@ if [[ ! -d web/node_modules ]]; then
 fi
 
 (cd web && npm run build)
-exec .venv/bin/uvicorn server.main:app --host 127.0.0.1 --port 8765 --no-access-log --no-server-header
+exec .venv/bin/python -m server.launcher

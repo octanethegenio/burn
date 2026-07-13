@@ -1,11 +1,67 @@
 from __future__ import annotations
 
 import sqlite3
+import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
-from server import main, store
+from server import auth, launcher, main, store
+
+
+class LauncherTests(unittest.TestCase):
+    def test_existing_server_opens_browser_and_exits(self) -> None:
+        with (
+            patch.object(sys, "argv", ["burn"]),
+            patch.object(launcher, "_burn_is_ready", return_value=True),
+            patch.object(launcher.webbrowser, "open", return_value=True) as open_browser,
+        ):
+            launcher.main()
+
+        open_browser.assert_called_once_with("http://127.0.0.1:8765/", new=2)
+
+
+class PlatformPathTests(unittest.TestCase):
+    def test_cursor_state_paths(self) -> None:
+        home = Path("/home/person")
+        self.assertEqual(
+            auth._state_db_path(platform="darwin", home=home, env={}),
+            home / "Library/Application Support/Cursor/User/globalStorage/state.vscdb",
+        )
+        self.assertEqual(
+            auth._state_db_path(
+                platform="win32",
+                home=home,
+                env={"APPDATA": "C:/Users/person/AppData/Roaming"},
+            ),
+            Path("C:/Users/person/AppData/Roaming/Cursor/User/globalStorage/state.vscdb"),
+        )
+        self.assertEqual(
+            auth._state_db_path(
+                platform="linux", home=home, env={"XDG_CONFIG_HOME": "/config"}
+            ),
+            Path("/config/Cursor/User/globalStorage/state.vscdb"),
+        )
+
+    def test_cache_paths(self) -> None:
+        home = Path("/home/person")
+        self.assertEqual(
+            store._data_dir(platform="darwin", home=home, env={}),
+            home / "Library/Application Support/Burn",
+        )
+        self.assertEqual(
+            store._data_dir(
+                platform="win32",
+                home=home,
+                env={"LOCALAPPDATA": "C:/Users/person/AppData/Local"},
+            ),
+            Path("C:/Users/person/AppData/Local/Burn"),
+        )
+        self.assertEqual(
+            store._data_dir(platform="linux", home=home, env={"XDG_DATA_HOME": "/data"}),
+            Path("/data/burn"),
+        )
 
 
 class ModelMatchingTests(unittest.TestCase):
