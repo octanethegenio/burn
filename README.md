@@ -4,11 +4,26 @@ Burn is a private macOS dashboard for Cursor usage and cost by model. It reads t
 
 ## Install the beta
 
-1. Download `Burn-0.1.0-beta.2-macOS-arm64.zip` from GitHub Releases.
-2. Unzip it and move `Burn.app` to Applications.
-3. Open Burn while signed in to Cursor.
+Burn does not use a setup wizard. On macOS, moving the `.app` bundle into the Applications folder installs it.
 
-The beta build targets Apple Silicon and macOS 13 or newer. Public builds must be Developer ID signed and notarized so Gatekeeper can verify them.
+1. Download `Burn-0.1.0-beta.1-macOS-arm64.zip` from [GitHub Releases](https://github.com/octanethegenio/burn/releases/tag/v0.1.0-beta.1).
+2. Double-click the ZIP to extract `Burn.app`.
+3. Open Finder and drag `Burn.app` into **Applications**.
+4. Make sure Cursor is open and signed in.
+5. In Applications, Control-click `Burn.app` and choose **Open**.
+
+### If macOS blocks Burn
+
+This free beta is not Apple-notarized, so Gatekeeper may show **“Burn” Not Opened**. Do not choose **Move to Trash**.
+
+1. Choose **Done** on the warning.
+2. Open **System Settings → Privacy & Security**.
+3. Scroll to **Security**, find the message about Burn, and choose **Open Anyway**.
+4. Authenticate with Touch ID or your Mac password, then confirm **Open**.
+
+This approval is normally required only once. Burn remains installed in Applications afterward.
+
+The beta targets Apple Silicon and macOS 13 or newer. A future paid Developer ID–notarized build will open without this manual approval.
 
 ## Privacy and security
 
