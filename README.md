@@ -6,10 +6,10 @@ Burn is a private local dashboard for Cursor usage and cost by model. It opens i
 
 1. Download the archive for your operating system from [GitHub Releases](https://github.com/octanethegenio/burn/releases).
 2. Extract it.
-3. Open `Burn` (`Burn.exe` on Windows).
+3. On macOS, move `Burn.app` to Applications and open it. On Windows, double-click `Burn.exe`.
 4. Burn starts a loopback-only local service and opens `http://127.0.0.1:8765` in your default browser.
 
-Keep Cursor installed and signed in. Burn exits automatically after no browser tab has connected for ten minutes. Opening the executable again reopens the dashboard.
+Burn has no separate application window. The launcher runs quietly in the background, and the browser is the entire interface. Keep Cursor installed and signed in. Burn exits automatically after no browser tab has connected for ten minutes. Opening the launcher again reopens the dashboard.
 
 The unsigned beta may trigger macOS Gatekeeper or Windows SmartScreen. Verify its SHA-256 file first, then use the operating system's manual approval option only if you trust this repository and downloaded the file from its Releases page.
 

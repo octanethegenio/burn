@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.0-beta.6
+
+- Packaged macOS as a double-clickable background launcher with no native window or Dock UI.
+- Kept Windows packaging as a no-console executable that opens the browser directly.
+
 ## 0.1.0-beta.5
 
 - Added per-event cache-read tokens to Recent events without crowding phone layouts.
