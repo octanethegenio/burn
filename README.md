@@ -1,53 +1,51 @@
 # Burn
 
-Local dashboard for **Cursor API credit burn** — per model, current billing cycle. Reads your Cursor IDE session and pulls the same usage data as cursor.com/dashboard.
+Burn is a private macOS dashboard for Cursor usage and cost by model. It reads the session from the Cursor app, calls Cursor's dashboard endpoints, and keeps its cache on your Mac.
 
-No CSV export. No cloud. Session stays on your machine.
+## Install the beta
 
-## Requirements
+1. Download `Burn-0.1.0-beta.1-macOS-arm64.zip` from GitHub Releases.
+2. Unzip it and move `Burn.app` to Applications.
+3. Open Burn while signed in to Cursor.
 
-- macOS (reads Cursor’s local login from `state.vscdb`)
-- Python 3.10+
-- Node 18+ (for the UI)
-- Cursor app signed in
+The beta build targets Apple Silicon and macOS 13 or newer. It uses ad-hoc signing because this release is not notarized. macOS may require you to right-click Burn and choose **Open** the first time.
 
-## Setup
+## Privacy and security
 
-```bash
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
+- The server binds to `127.0.0.1`; other devices cannot reach it.
+- Burn reads the Cursor access token when syncing and never stores it.
+- The local database contains the account email and summarized usage events. It lives at `~/Library/Application Support/Burn/burn.db` with owner-only permissions.
+- Burn does not store raw Cursor API payloads, account subject IDs, or Cursor user IDs.
+- The frontend contains no analytics, telemetry, remote fonts, or third-party network requests.
+- A request header protects state-changing local endpoints from cross-site requests.
 
-cd web && npm install && cd ..
-```
+Burn uses unofficial Cursor dashboard endpoints. Cursor can change them without notice.
 
-## Run
+## Run from source
 
-Terminal 1 — API:
-
-```bash
-source .venv/bin/activate
-uvicorn server.main:app --reload --host 127.0.0.1 --port 8765
-```
-
-Terminal 2 — UI:
+Requirements: macOS, Python 3.10+, Node 18+, and Cursor signed in.
 
 ```bash
-cd web && npm run dev
+./run.sh
 ```
 
-Open **http://localhost:5173**. It auto-syncs on first load.
+Open `http://127.0.0.1:8765`. `run.sh` creates a Python environment, installs locked runtime dependencies, builds the UI, and starts the production server. For hot reload:
 
-## What you get
+```bash
+./dev.sh
+```
 
-- Total `$` burned this billing cycle
-- Per-model table (tokens + cost), sorted by spend
-- Recent usage events
-- **Sync now** refreshes from Cursor
-- **Hide Auto-ish** filters obvious Auto/router model names
+## Verify
 
-## Notes
+```bash
+python3 -m unittest discover -s tests -v
+cd web && npm ci && npm run check
+```
 
-- Uses unofficial Cursor dashboard endpoints (`get-aggregated-usage-events`, `get-filtered-usage-events`). They can change.
-- Auth comes from `~/Library/Application Support/Cursor/User/globalStorage/state.vscdb` (`cursorAuth/accessToken`), with macOS keychain fallback.
-- Cached snapshot lives in `data/burn.db` (gitignored).
+## Build the macOS app
+
+```bash
+./scripts/build-macos.sh
+```
+
+The script creates the app and checksum in `release/`. It needs Xcode command-line tools, Python 3, Node, and network access for build dependencies.
