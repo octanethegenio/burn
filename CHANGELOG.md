@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.0-beta.7
+
+- Added a prominent first-launch guide beside the macOS app in the download.
+
 ## 0.1.0-beta.6
 
 - Packaged macOS as a double-clickable background launcher with no native window or Dock UI.

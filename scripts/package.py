@@ -15,7 +15,7 @@ from pathlib import Path
 import PyInstaller.__main__
 
 ROOT = Path(__file__).resolve().parent.parent
-VERSION = "0.1.0-beta.6"
+VERSION = "0.1.0-beta.7"
 
 
 def _run(*command: str, cwd: Path = ROOT) -> None:
@@ -95,7 +95,7 @@ def main() -> None:
                 sort_keys=False,
             )
         _run("codesign", "--force", "--deep", "--sign", "-", str(app_dir))
-        payloads = [app_dir]
+        payloads = [app_dir, ROOT / "packaging" / "READ ME FIRST - macOS.txt"]
 
     archive = release_dir / f"Burn-{VERSION}-{system}-{arch}.zip"
     with zipfile.ZipFile(archive, "w", zipfile.ZIP_DEFLATED) as output:

@@ -1,0 +1,13 @@
+BURN: FIRST LAUNCH ON macOS
+
+Burn is not yet notarized by Apple, so macOS will block the first launch.
+
+1. Move Burn.app to Applications and double-click it.
+2. On the “Burn” Not Opened warning, click Done — not Move to Trash.
+3. Open System Settings > Privacy & Security, scroll down, and click Open Anyway beside Burn.
+4. Confirm Open. Burn will open in your default browser.
+
+This approval is normally required only once.
+
+Only override this warning if you downloaded Burn from:
+https://github.com/octanethegenio/burn/releases
