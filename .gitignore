@@ -1,0 +1,14 @@
+.venv/
+__pycache__/
+*.py[cod]
+.Python
+.env
+.env.local
+*.db
+data/
+backups/
+web/node_modules/
+web/dist/
+.DS_Store
+*.log
+.cursor/
