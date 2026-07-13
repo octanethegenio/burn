@@ -14,8 +14,6 @@ class Session:
     email: str | None
     user_sub: str
     access_token: str
-    cookie_value: str
-    source: str
 
     @property
     def cookie_header(self) -> str:
@@ -90,8 +88,6 @@ def load_session() -> Session:
                 email=email,
                 user_sub=sub,
                 access_token=token,
-                cookie_value=f"{sub}::{token}",
-                source="cursor-sqlite",
             )
         except Exception as e:  # noqa: BLE001 — surface to caller as fallback chain
             errors.append(f"sqlite: {e}")
@@ -104,8 +100,6 @@ def load_session() -> Session:
             email=None,
             user_sub=sub,
             access_token=token,
-            cookie_value=f"{sub}::{token}",
-            source="keychain",
         )
 
     raise RuntimeError(

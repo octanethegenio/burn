@@ -10,13 +10,14 @@ from typing import Any
 from .auth import Session
 
 BASE = "https://cursor.com"
+MAX_RESPONSE_BYTES = 16 * 1024 * 1024
 
 
 class CursorAPIError(RuntimeError):
     def __init__(self, status: int, body: str):
         self.status = status
         self.body = body
-        super().__init__(f"Cursor API {status}: {body[:300]}")
+        super().__init__(f"Cursor rejected the usage request ({status}).")
 
 
 def _request(
@@ -42,12 +43,16 @@ def _request(
     )
     try:
         with urllib.request.urlopen(req, timeout=timeout) as resp:
-            raw = resp.read()
+            raw = resp.read(MAX_RESPONSE_BYTES + 1)
+            if len(raw) > MAX_RESPONSE_BYTES:
+                raise CursorAPIError(502, "response too large")
             if not raw:
                 return None
             return json.loads(raw)
     except urllib.error.HTTPError as e:
         raise CursorAPIError(e.code, e.read().decode(errors="replace")) from e
+    except (urllib.error.URLError, TimeoutError) as e:
+        raise CursorAPIError(502, "network error") from e
 
 
 def auth_me(session: Session) -> dict[str, Any]:

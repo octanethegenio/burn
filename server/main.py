@@ -3,20 +3,24 @@
 from __future__ import annotations
 
 import re
-from datetime import datetime, timezone
+import sys
+import threading
+from contextlib import asynccontextmanager
+from datetime import datetime
+from hashlib import sha256
 from pathlib import Path
 from typing import Any
 
-from fastapi import FastAPI, HTTPException
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse
+from fastapi import FastAPI, HTTPException, Request
+from fastapi.responses import FileResponse, PlainTextResponse
 from fastapi.staticfiles import StaticFiles
 
 from . import cursor_client, store
 from .auth import load_session
 
-ROOT = Path(__file__).resolve().parent.parent
+ROOT = Path(getattr(sys, "_MEIPASS", Path(__file__).resolve().parent.parent))
 WEB_DIST = ROOT / "web" / "dist"
+SYNC_LOCK = threading.Lock()
 
 # Models that look like Auto / router buckets — hidden when api_only=true
 AUTO_MODEL_RE = re.compile(
@@ -109,10 +113,8 @@ def _event_cost_cents(ev: dict[str, Any]) -> float:
 
 
 def _event_id(ev: dict[str, Any], idx: int) -> str:
-    return (
-        f"{ev.get('timestamp')}:{ev.get('model')}:{_event_cost_cents(ev):.6f}:"
-        f"{ev.get('owningUser')}:{idx}"
-    )
+    value = f"{ev.get('timestamp')}:{ev.get('model')}:{_event_cost_cents(ev):.6f}:{idx}"
+    return sha256(value.encode()).hexdigest()[:32]
 
 
 def sync_now() -> dict[str, Any]:
@@ -182,42 +184,29 @@ def sync_now() -> dict[str, Any]:
                 "cost_cents": _event_cost_cents(ev),
                 "input_tokens": _intish(tu.get("inputTokens")),
                 "output_tokens": _intish(tu.get("outputTokens")),
-                "cache_read_tokens": _intish(tu.get("cacheReadTokens")),
-                "cache_write_tokens": _intish(tu.get("cacheWriteTokens")),
-                "is_chargeable": bool(ev.get("isChargeable")),
-                "raw_json": __import__("json").dumps(ev),
             }
         )
+    event_rows.sort(key=lambda row: row["ts_ms"], reverse=True)
+    event_rows = event_rows[:5000]
 
-    store.replace_models(model_rows)
-    store.replace_events(event_rows)
-    store.set_meta(
-        "account",
-        {
+    plan_usage = period.get("planUsage") or {}
+
+    store.replace_snapshot(
+        model_rows,
+        event_rows,
+        account={
             "email": me.get("email") or session.email,
-            "name": me.get("name"),
-            "user_id": user_id,
-            "sub": me.get("sub") or session.user_sub,
-            "auth_source": session.source,
         },
-    )
-    store.set_meta(
-        "period",
-        {
+        period={
             "start": summary.get("billingCycleStart"),
             "end": summary.get("billingCycleEnd"),
-            "start_ms": start_ms,
-            "end_ms": end_ms,
             "membership": summary.get("membershipType"),
-            "plan_usage": period.get("planUsage"),
+            "plan_usage": {"apiPercentUsed": plan_usage.get("apiPercentUsed")},
             "display_message": period.get("displayMessage")
             or summary.get("namedModelSelectedDisplayMessage"),
-            "auto_message": period.get("autoModelSelectedDisplayMessage")
-            or summary.get("autoModelSelectedDisplayMessage"),
             "total_cost_cents": official_total,
         },
     )
-    store.mark_synced()
 
     return {
         "models": len(model_rows),
@@ -230,19 +219,33 @@ def _is_auto_model(name: str) -> bool:
     return bool(AUTO_MODEL_RE.search(name))
 
 
-app = FastAPI(title="Burn", version="0.1.0")
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-
-@app.on_event("startup")
-def _startup() -> None:
+@asynccontextmanager
+async def lifespan(_: FastAPI):
     store.init_db()
+    yield
+
+
+app = FastAPI(title="Burn", version="0.1.0-beta.1", lifespan=lifespan)
+
+
+@app.middleware("http")
+async def security_headers(request: Request, call_next):
+    host = request.headers.get("host", "").partition(":")[0].lower()
+    if host not in {"127.0.0.1", "localhost"}:
+        return PlainTextResponse("Invalid host", status_code=400)
+    if request.method not in {"GET", "HEAD", "OPTIONS"}:
+        if request.headers.get("X-Burn-Request") != "1":
+            return PlainTextResponse("Forbidden", status_code=403)
+    response = await call_next(request)
+    response.headers["Cache-Control"] = "no-store"
+    response.headers["Content-Security-Policy"] = (
+        "default-src 'self'; style-src 'self'; img-src 'self' data:; "
+        "script-src 'self'; connect-src 'self'"
+    )
+    response.headers["Referrer-Policy"] = "no-referrer"
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    return response
 
 
 @app.get("/api/health")
@@ -258,12 +261,10 @@ def status() -> dict[str, Any]:
         auth_error = None
         preview = {
             "email": session.email,
-            "source": session.source,
-            "sub": session.user_sub,
         }
     except Exception as e:  # noqa: BLE001
         auth_ok = False
-        auth_error = str(e)
+        auth_error = "Cursor session unavailable."
         preview = None
 
     return {
@@ -279,12 +280,16 @@ def status() -> dict[str, Any]:
 
 @app.post("/api/sync")
 def sync() -> dict[str, Any]:
+    if not SYNC_LOCK.acquire(blocking=False):
+        raise HTTPException(status_code=409, detail="A sync is already running.")
     try:
         result = sync_now()
     except cursor_client.CursorAPIError as e:
         raise HTTPException(status_code=502, detail=str(e)) from e
     except Exception as e:  # noqa: BLE001
-        raise HTTPException(status_code=500, detail=str(e)) from e
+        raise HTTPException(status_code=500, detail="Sync failed. Check Cursor sign-in and retry.") from e
+    finally:
+        SYNC_LOCK.release()
     return {"ok": True, **result, "last_synced_at": store.get_meta("last_synced_at")}
 
 
@@ -328,7 +333,7 @@ if WEB_DIST.exists():
 
     @app.get("/{full_path:path}")
     def spa(full_path: str) -> FileResponse:
-        candidate = WEB_DIST / full_path
-        if full_path and candidate.is_file():
+        candidate = (WEB_DIST / full_path).resolve()
+        if full_path and candidate.is_relative_to(WEB_DIST.resolve()) and candidate.is_file():
             return FileResponse(candidate)
         return FileResponse(WEB_DIST / "index.html")

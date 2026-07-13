@@ -1,5 +1,9 @@
 .venv/
 __pycache__/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
 *.py[cod]
 .Python
 .env
@@ -9,6 +13,10 @@ data/
 backups/
 web/node_modules/
 web/dist/
+build/
+release/
+tmp/
+*.spec
 .DS_Store
 *.log
 .cursor/
