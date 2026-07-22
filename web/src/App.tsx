@@ -384,9 +384,15 @@ export default function App() {
     [refresh],
   )
 
+  const didInitialSyncRef = useRef(false)
   useEffect(() => {
-    if (status?.auth_ok && !status.has_data && !busy) void onSync(false)
-  }, [status?.auth_ok, status?.has_data, busy, onSync])
+    if (didInitialSyncRef.current) return
+    if (!status || !status.auth_ok || busy) return
+    didInitialSyncRef.current = true
+    // silent background refresh when we already have cached data;
+    // visible sync when the DB is empty (nothing to show yet)
+    void onSync(status.has_data)
+  }, [status, busy, onSync])
 
   useEffect(() => {
     const id = window.setInterval(() => {
