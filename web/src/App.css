@@ -16,6 +16,17 @@
   }
 }
 
+:where(button, input, a, [tabindex]):focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--ember) 60%, transparent);
+  outline-offset: 2px;
+}
+
+.search-field:focus-within {
+  border-color: color-mix(in srgb, var(--ember) 45%, var(--line));
+  outline: 2px solid color-mix(in srgb, var(--ember) 22%, transparent);
+  outline-offset: 1px;
+}
+
 .top {
   display: flex;
   align-items: center;
@@ -55,7 +66,7 @@
   border: 1px solid var(--line);
   background: var(--bg-elev);
   border-radius: 6px;
-  transition: filter 0.15s ease, color 0.15s ease, opacity 0.15s ease;
+  transition: background-color var(--dur) var(--ease-out), border-color var(--dur) var(--ease-out), color var(--dur) var(--ease-out), transform var(--dur-fast) var(--ease-out), opacity var(--dur) var(--ease-out);
 }
 
 .icon-btn {
@@ -74,15 +85,19 @@
   align-items: center;
 }
 
-.icon-btn:hover,
-.sync:hover:not(:disabled) {
-  filter: brightness(1.18);
-  color: var(--text);
+@media (hover: hover) and (pointer: fine) {
+  .icon-btn:hover,
+  .sync:hover:not(:disabled) {
+    background: var(--sync-hover);
+    border-color: color-mix(in srgb, var(--ember) 28%, var(--line));
+    color: var(--text);
+  }
 }
 
 .icon-btn:active,
 .sync:active:not(:disabled) {
-  filter: brightness(0.92);
+  transform: translateY(0.5px);
+  border-color: color-mix(in srgb, var(--ember) 22%, var(--line));
 }
 
 .sync:disabled {
@@ -216,7 +231,7 @@
   border-radius: 4px;
   border: 1px solid color-mix(in srgb, var(--ember) 32%, var(--line));
   background: var(--ember-soft);
-  color: var(--ember);
+  color: var(--ember-ink);
 }
 
 .note {
@@ -374,7 +389,7 @@
 }
 
 .view-menu button.on {
-  color: var(--ember);
+  color: var(--ember-ink);
 }
 
 .search-field {
@@ -648,7 +663,7 @@
 }
 
 .pager-size-menu button.on {
-  color: var(--ember);
+  color: var(--ember-ink);
 }
 
 .pager-range {
@@ -765,7 +780,7 @@ th.sorted .th-btn {
 
 .sort-ind.on {
   opacity: 0.9;
-  color: var(--ember);
+  color: var(--ember-ink);
 }
 
 .sort-ind.asc {
@@ -857,8 +872,10 @@ tr:last-child td {
   border-bottom: none;
 }
 
-tr:hover td {
-  background: var(--row-hover);
+@media (hover: hover) and (pointer: fine) {
+  tr:hover td {
+    background: var(--row-hover);
+  }
 }
 
 .num {
@@ -869,7 +886,7 @@ tr:hover td {
 }
 
 .cost {
-  color: var(--ember) !important;
+  color: var(--ember-ink) !important;
   font-weight: 500;
 }
 

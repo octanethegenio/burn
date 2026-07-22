@@ -37,7 +37,7 @@
   --line: #2a2c24;
   --text: #e8e6dc;
   --muted: #8a8c7e;
-  --dim: #5c5e52;
+  --dim: #808072;
   --ember: #e8a54b;
   --ember-soft: rgba(232, 165, 75, 0.14);
   --ember-deep: #a86b2a;
@@ -51,6 +51,10 @@
   --total-glow: rgba(232, 165, 75, 0.18);
   --font: 'IBM Plex Sans', system-ui, sans-serif;
   --mono: 'IBM Plex Mono', ui-monospace, monospace;
+  --ember-ink: #e8a54b;
+  --ease-out: cubic-bezier(0.2, 0.7, 0.3, 1);
+  --dur-fast: 90ms;
+  --dur: 150ms;
   color-scheme: dark;
 }
 
@@ -59,8 +63,8 @@
   --bg-elev: #fffdf8;
   --line: #d8d3c6;
   --text: #1c1d18;
-  --muted: #6b6d62;
-  --dim: #8a8c80;
+  --muted: #5c5e54;
+  --dim: #6d6e60;
   --ember: #b86f1f;
   --ember-soft: rgba(184, 111, 31, 0.12);
   --ember-deep: #8f5314;
@@ -72,6 +76,7 @@
   --bar-track: #e4e0d4;
   --sync-hover: #f7f2e6;
   --total-glow: rgba(184, 111, 31, 0.12);
+  --ember-ink: #985a17;
   color-scheme: light;
 }
 
