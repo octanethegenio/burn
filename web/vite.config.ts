@@ -60,7 +60,9 @@ function burnBackend(): Plugin {
         child.kill()
       }
 
-      server.httpServer?.once('close', stop)
+      // Tie the backend's lifecycle to the Node process, not the httpServer:
+      // Vite closes+recreates the httpServer on every config restart, and
+      // killing the child there races the next probe and can leave no backend.
       process.once('exit', stop)
       process.once('SIGINT', () => {
         stop()
